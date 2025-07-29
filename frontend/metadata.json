@@ -1,0 +1,6 @@
+{
+  "name": "Condo Water Management",
+  "description": "A dashboard to view and analyze water consumption for condominium units, featuring detailed bill breakdowns.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}

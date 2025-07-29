@@ -1,0 +1,15 @@
+__pycache__/
+/.DS_Store
+./backend/create-tables.sql
+./backend/README.md
+./backend/requirements.txt
+./backend/.gitignore
+./backend/__pycache__
+./frontend/.DS_Store
+./backend/*.sql
+*.sql
+*.xlsx
+*.pdf
+*.csv
+import_codenames.py
+import_xls_to_postgres.py
