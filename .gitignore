@@ -1,5 +1,5 @@
 __pycache__/
-/.DS_Store
+.DS_Store
 ./backend/create-tables.sql
 ./backend/README.md
 ./backend/requirements.txt
@@ -13,3 +13,4 @@ __pycache__/
 *.csv
 import_codenames.py
 import_xls_to_postgres.py
+frontend/node_modules/

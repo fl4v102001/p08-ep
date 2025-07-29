@@ -19,8 +19,8 @@ const Header: React.FC<HeaderProps> = ({ onLogout, userName, userProfile }) => (
       <h1 className="text-2xl font-bold text-slate-800">Condo Water</h1>
     </div>
     <nav className="flex items-center space-x-6">
-      <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">Home</a>
-      <a href="#" className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Leituras</a>
+      <a href="#" className="text-blue-600 font-bold border-b-2 border-blue-600 pb-1">Home</a>
+      <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">Leituras</a>
       <a href="#" className="text-slate-600 hover:text-blue-600 font-medium">Configuração</a>
     </nav>
     <div className="flex items-center space-x-4">

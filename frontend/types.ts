@@ -10,13 +10,13 @@ export interface WaterBill {
   data_ref: string;
   data_display: string;
   consumo_esgoto_m3: number;
-  total_esgoto_RS: number;
+  total_esgoto_rs: number;
   consumo_produzido_m3: number;
   consumo_comprado_m3: number;
   cobrado_total_agua_rs: number;
   cobrado_area_comum_rs: number;
   cobrado_outros_gastos_rs: number;
-  total_conta_RS: number;
+  total_conta_rs: number;
 }
 
 export interface MonthlySummary {
