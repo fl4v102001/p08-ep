@@ -148,3 +148,21 @@ export async function generateUnitReportPdf(codigoLote: number, dataRefMes: stri
     throw error;
   }
 }
+
+
+/**
+ * Interface para os dados da última leitura.
+ */
+export interface LatestReading {
+  codigo_lote: number;
+  nome_lote: string;
+  leitura_anterior: number;
+}
+
+/**
+ * Busca a última leitura de todas as unidades.
+ */
+export async function fetchLatestReadings(): Promise<LatestReading[]> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/latest-readings`);
+  return response.json();
+}

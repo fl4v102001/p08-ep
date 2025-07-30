@@ -48,3 +48,18 @@ def get_monthly_summary(year_month, sort_by_param=None):
     except Exception as e:
         print(f"Erro inesperado em get_monthly_summary: {e}")
         return jsonify({'error': 'Ocorreu um erro interno ao processar o resumo.'}), 500
+    
+
+@api_bp.route('/latest-readings', methods=['GET'])
+@jwt_required
+def get_latest_readings():
+    """
+    Endpoint para retornar a lista de unidades com a última leitura registrada.
+    """
+    db = get_db()
+    try:
+        response, status_code = unit_service.get_latest_readings_service(db)
+        return jsonify(response), status_code
+    except Exception as e:
+        print(f"Erro inesperado em get_latest_readings: {e}")
+        return jsonify({'error': 'Ocorreu um erro interno ao buscar as leituras.'}), 500
