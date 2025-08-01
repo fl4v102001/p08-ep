@@ -157,6 +157,7 @@ export interface LatestReading {
   codigo_lote: number;
   nome_lote: string;
   leitura_anterior: number;
+  data_ref: string | null;
 }
 
 /**

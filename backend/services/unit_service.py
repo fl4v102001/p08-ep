@@ -60,7 +60,8 @@ def get_latest_readings_service(db: Session):
         select(
             Unit.codigo_lote,
             Unit.nome_lote,
-            WaterBill.leitura
+            WaterBill.leitura,
+            WaterBill.data_ref
         )
         .join(subquery, Unit.codigo_lote == subquery.c.codigo_lote)
         .join(WaterBill, (Unit.codigo_lote == WaterBill.codigo_lote) & (WaterBill.data_ref == subquery.c.max_data_ref))
@@ -74,7 +75,8 @@ def get_latest_readings_service(db: Session):
         {
             "codigo_lote": row.codigo_lote,
             "nome_lote": row.nome_lote,
-            "leitura_anterior": row.leitura
+            "leitura_anterior": row.leitura,
+            "data_ref": row.data_ref.strftime('%Y-%m-%d') if row.data_ref else None
         } for row in results
     ]
     

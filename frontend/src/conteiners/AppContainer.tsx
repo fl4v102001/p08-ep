@@ -110,7 +110,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
 
   return (
     // ETAPA 1: A grade principal agora tem 12 colunas
-    <main className="flex-grow p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden">
+    <main className="flex-grow p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-hidden">
       {isDataLoading ? (
         <div className="lg:col-span-12 flex justify-center items-center">
           <div className="text-center">
@@ -132,7 +132,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
           </div>
 
           {/* Painel 2: BillDetails (O segundo mais estreito) */}
-          <div className="lg:col-span-3 h-full overflow-hidden">
+          <div className="lg:col-span-4 h-full overflow-hidden">
             <BillDetails bills={billsForSelectedUnit} selectedBill={selectedBill} onSelectBill={handleSelectBill} />
           </div>
 
@@ -148,7 +148,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
           </div>
 
           {/* Painel 4: FutureUsePanel (Sempre visível) */}
-          <div className="lg:col-span-4 h-full overflow-hidden">
+          <div className="lg:col-span-3 h-full overflow-hidden">
              <FutureUsePanel />
           </div>
         </>
