@@ -158,6 +158,8 @@ export interface LatestReading {
   nome_lote: string;
   leitura_anterior: number;
   data_ref: string | null;
+  media_movel_6_meses_anteriores: number;
+  media_movel_12_meses_anteriores: number;
 }
 
 /**

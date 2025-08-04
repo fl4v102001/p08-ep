@@ -61,7 +61,9 @@ def get_latest_readings_service(db: Session):
             Unit.codigo_lote,
             Unit.nome_lote,
             WaterBill.leitura,
-            WaterBill.data_ref
+            WaterBill.data_ref,
+            WaterBill.media_movel_6_meses_anteriores,
+            WaterBill.media_movel_12_meses_anteriores
         )
         .join(subquery, Unit.codigo_lote == subquery.c.codigo_lote)
         .join(WaterBill, (Unit.codigo_lote == WaterBill.codigo_lote) & (WaterBill.data_ref == subquery.c.max_data_ref))
@@ -76,7 +78,9 @@ def get_latest_readings_service(db: Session):
             "codigo_lote": row.codigo_lote,
             "nome_lote": row.nome_lote,
             "leitura_anterior": row.leitura,
-            "data_ref": row.data_ref.strftime('%Y-%m-%d') if row.data_ref else None
+            "data_ref": row.data_ref.strftime('%Y-%m-%d') if row.data_ref else None,
+            "media_movel_6_meses_anteriores": row.media_movel_6_meses_anteriores,
+            "media_movel_12_meses_anteriores": row.media_movel_12_meses_anteriores,
         } for row in results
     ]
     

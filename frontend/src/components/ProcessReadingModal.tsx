@@ -12,6 +12,8 @@ interface NewReading {
   leitura_atual: number | null;
   consumo: number | null;
   mes_mensagem: string;
+  media_movel_6_meses_anteriores: number;
+  media_movel_12_meses_anteriores: number;
 }
 
 interface LogMessage {
@@ -24,8 +26,10 @@ interface ProductionData {
   data_ref: string | null;
   producao_m3: number | null;
   outros_rs: number | null;
-  compra_m3: number | null;
   compra_rs: number | null;
+  total_consumo_m3: number | null;
+  media_m3: number | null;
+  mediana_m3: number | null;
 }
 
 const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClose }) => {
@@ -35,8 +39,10 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
     data_ref: null,
     producao_m3: null,
     outros_rs: null,
-    compra_m3: null,
     compra_rs: null,
+    total_consumo_m3: null,
+    media_m3: null,
+    mediana_m3: null,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,28 +54,87 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
     setLogMessages(prev => [{ text, type, timestamp }, ...prev]);
   };
 
-  // ATUALIZADO: A função agora aceita o mapa de leituras como argumento
+  const calculateConsumptionStats = (readings: Map<number, NewReading>) => {
+    const consumptionValues = Array.from(readings.values())
+      .map(r => r.consumo)
+      .filter((c): c is number => c !== null && c >= 0);
+
+    if (consumptionValues.length === 0) {
+      return { total_consumo_m3: 0, media_m3: 0, mediana_m3: 0 };
+    }
+
+    const total_consumo_m3 = consumptionValues.reduce((sum, val) => sum + val, 0);
+    const media_m3 = total_consumo_m3 / consumptionValues.length;
+
+    const sortedValues = [...consumptionValues].sort((a, b) => a - b);
+    const mid = Math.floor(sortedValues.length / 2);
+    const mediana_m3 =
+      sortedValues.length % 2 !== 0
+        ? sortedValues[mid]
+        : (sortedValues[mid - 1] + sortedValues[mid]) / 2;
+
+    return { 
+      total_consumo_m3: parseFloat(total_consumo_m3.toFixed(2)), 
+      media_m3: parseFloat(media_m3.toFixed(2)), 
+      mediana_m3: parseFloat(mediana_m3.toFixed(2)) 
+    };
+  };
+
+  // ATUALIZADO: A função agora também gera as mensagens com base na mediana
   const runConsistencyCheck = (readingsToCheck: Map<number, NewReading>) => {
     addLog("Executando verificação de consistência...", 'info');
     let errorCount = 0;
 
-    const productionLabels: { [key in keyof ProductionData]: string } = {
+    const stats = calculateConsumptionStats(readingsToCheck);
+    setProductionData(prev => ({ ...prev, ...stats }));
+
+    // NOVO: Lógica para gerar mensagens com base nas estatísticas
+    readingsToCheck.forEach((reading, key) => {
+      let message = '';
+      const { consumo, leitura_atual, media_movel_6_meses_anteriores, media_movel_12_meses_anteriores } = reading;
+      const { mediana_m3 } = stats;
+
+      if (consumo !== null && leitura_atual !== null) {
+        if (consumo < 0 || leitura_atual === 0) {
+          message = 'Leitura inválida ou consumo negativo.';
+        } else if (mediana_m3 > 0 && consumo >= 2.5 * mediana_m3) {
+          message = 'Atenção: Checar URGENTE';
+          addLog(`Checar URGENTE `+key, 'info');
+        } else if (mediana_m3 > 0 && consumo > 2 * mediana_m3) {
+          message = 'Atenção: Consumo muito alto';
+          addLog(`Muito ALTO `+key, 'info');
+        } else if (consumo === 0) {
+          message = 'Consumo zerado neste mês.';
+        } else if (consumo > 1.5 * media_movel_6_meses_anteriores && consumo >= 1.5 * mediana_m3) {
+          message = 'Consumo ANORMAL '+media_movel_6_meses_anteriores+' '+media_movel_12_meses_anteriores+'';
+          addLog(`Consumo ANORMAL `+key, 'info');
+
+        } else {
+          message = 'Consumo normal.';
+        }
+      } else {
+        message = 'Leitura pendente.';
+      }
+      reading.mes_mensagem = message;
+    });
+    // Força a atualização do estado para refletir as novas mensagens
+    setNewReadings(new Map(readingsToCheck));
+
+    const productionLabels: { [key in keyof Omit<ProductionData, 'total_consumo_m3' | 'media_m3' | 'mediana_m3'>]: string } = {
       data_ref: 'Data Referência',
       producao_m3: 'Produção m³',
       outros_rs: 'Outros R$',
-      compra_m3: 'Compra m³',
       compra_rs: 'Compra R$',
     };
 
-    for (const key in productionData) {
-      if (productionData[key as keyof ProductionData] === null) {
-        addLog(`ERRO: Falta informar o campo "${productionLabels[key as keyof ProductionData]}".`, 'error');
+    for (const key in productionLabels) {
+      if (productionData[key as keyof typeof productionLabels] === null) {
+        addLog(`ERRO: Falta informar o campo "${productionLabels[key as keyof typeof productionLabels]}".`, 'error');
         errorCount++;
       }
     }
 
     latestReadings.forEach(unit => {
-      // Usa o mapa passado como argumento, não o estado
       const readingData = readingsToCheck.get(unit.codigo_lote);
       if (!readingData || readingData.data_leitura_atual === null) {
         addLog(`ERRO: O campo "Data Leitura Atual" da unidade ${unit.codigo_lote} está pendente.`, 'error');
@@ -97,13 +162,20 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
       setIsLoading(true);
       setError(null);
       setLogMessages([]);
-      setProductionData({ data_ref: null, producao_m3: null, outros_rs: null, compra_m3: null, compra_rs: null });
+      setProductionData({ data_ref: null, producao_m3: null, outros_rs: null, compra_rs: null, total_consumo_m3: null, media_m3: null, mediana_m3: null });
       fetchLatestReadings()
         .then(data => {
           setLatestReadings(data);
           const initialNewReadings = new Map<number, NewReading>();
           data.forEach(unit => {
-            initialNewReadings.set(unit.codigo_lote, { data_leitura_atual: null, leitura_atual: null, consumo: null, mes_mensagem: '' });
+            initialNewReadings.set(unit.codigo_lote, { 
+              data_leitura_atual: null, 
+              leitura_atual: null, 
+              consumo: null, 
+              mes_mensagem: '', 
+              media_movel_12_meses_anteriores: unit.media_movel_12_meses_anteriores, 
+              media_movel_6_meses_anteriores: unit.media_movel_6_meses_anteriores 
+            });
           });
           setNewReadings(initialNewReadings);
 
@@ -148,16 +220,16 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
                 data_leitura_atual: dataLeituraStr || null,
                 leitura_atual, 
                 consumo, 
-                mes_mensagem: '' 
+                mes_mensagem: '' ,
+                media_movel_6_meses_anteriores: latestReading.media_movel_6_meses_anteriores,
+                media_movel_12_meses_anteriores: latestReading.media_movel_12_meses_anteriores,
               });
               processedCount++;
             }
           });
-
-          setNewReadings(updatedReadings);
+          
           addLog(`${processedCount} leituras do arquivo CSV foram processadas.`, 'success');
-
-          // ATUALIZADO: Passa o mapa recém-processado para a função de verificação
+          // A verificação agora também irá calcular e setar as mensagens
           runConsistencyCheck(updatedReadings);
         },
         error: (err) => {
@@ -186,7 +258,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
     setNewReadings(updatedReadings);
   };
 
-  const handleProductionDataChange = (field: keyof ProductionData, value: string) => {
+  const handleProductionDataChange = (field: keyof Omit<ProductionData, 'total_consumo_m3' | 'media_m3' | 'mediana_m3'>, value: string) => {
     if (field === 'data_ref') {
       setProductionData(prev => ({ ...prev, data_ref: value || null }));
     } else {
@@ -216,7 +288,6 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
           <h2 className="text-xl font-bold text-slate-800">Processar Arquivo de Leitura</h2>
         </header>
 
-        {/* ATUALIZADO: Removida a classe 'overflow-hidden' */}
         <main className="flex-grow p-4 grid grid-cols-4 gap-6 overflow-hidden">
           <div className="col-span-3 flex flex-col overflow-y-auto">
             {isLoading ? (
@@ -226,9 +297,9 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
             ) : (
               <>
                 <div className="mb-4 p-4 border rounded-lg bg-slate-50">
-                  <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
                     <div>
-                      <label htmlFor="producao_m3" className="block text-sm font-medium text-slate-700 mb-1">Data Referência</label>
+                      <label htmlFor="data_ref" className="block text-sm font-medium text-slate-700 mb-1">Data Referência</label>
                       <input type="text" id="data_ref" value={productionData.data_ref ?? ''} onChange={(e) => handleProductionDataChange('data_ref', e.target.value)} className="w-full p-2 border rounded-md" disabled/>
                     </div>
                     <div>
@@ -236,16 +307,24 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
                       <input type="number" id="producao_m3" value={productionData.producao_m3 ?? ''} onChange={(e) => handleProductionDataChange('producao_m3', e.target.value)} className="w-full p-2 border rounded-md" />
                     </div>
                     <div>
-                      <label htmlFor="outros_rs" className="block text-sm font-medium text-slate-700 mb-1">Outros R$</label>
+                      <label htmlFor="compra_rs" className="block text-sm font-medium text-slate-700 mb-1">Compra Água R$</label>
+                      <input type="number" id="compra_rs" value={productionData.compra_rs ?? ''} onChange={(e) => handleProductionDataChange('compra_rs', e.target.value)} className="w-full p-2 border rounded-md" />
+                    </div>
+                    <div>
+                      <label htmlFor="outros_rs" className="block text-sm font-medium text-slate-700 mb-1">Outros Gastos R$</label>
                       <input type="number" id="outros_rs" value={productionData.outros_rs ?? ''} onChange={(e) => handleProductionDataChange('outros_rs', e.target.value)} className="w-full p-2 border rounded-md" />
                     </div>
                     <div>
-                      <label htmlFor="compra_m3" className="block text-sm font-medium text-slate-700 mb-1">Compra m³</label>
-                      <input type="number" id="compra_m3" value={productionData.compra_m3 ?? ''} onChange={(e) => handleProductionDataChange('compra_m3', e.target.value)} className="w-full p-2 border rounded-md" />
+                      <label htmlFor="total_consumo_m3" className="block text-sm font-medium text-slate-700 mb-1">Total Consumo m³</label>
+                      <input type="number" id="total_consumo_m3" value={productionData.total_consumo_m3 ?? ''} className="w-full p-2 border rounded-md bg-slate-200" disabled />
                     </div>
                     <div>
-                      <label htmlFor="compra_rs" className="block text-sm font-medium text-slate-700 mb-1">Compra R$</label>
-                      <input type="number" id="compra_rs" value={productionData.compra_rs ?? ''} onChange={(e) => handleProductionDataChange('compra_rs', e.target.value)} className="w-full p-2 border rounded-md" />
+                      <label htmlFor="media_m3" className="block text-sm font-medium text-slate-700 mb-1">Média m³</label>
+                      <input type="number" id="media_m3" value={productionData.media_m3 ?? ''} className="w-full p-2 border rounded-md bg-slate-200" disabled />
+                    </div>
+                    <div>
+                      <label htmlFor="mediana_m3" className="block text-sm font-medium text-slate-700 mb-1">Mediana m³</label>
+                      <input type="number" id="mediana_m3" value={productionData.mediana_m3 ?? ''} className="w-full p-2 border rounded-md bg-slate-200" disabled />
                     </div>
                   </div>
                 </div>
@@ -300,7 +379,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
             </button>
             
             <h4 className="font-semibold text-slate-600 border-b pb-2 mb-3">Log de Eventos</h4>
-            <div className="flex-grow bg-slate-50 rounded-md p-3 overflow-y-auto text-xs space-y-2 border">
+            <div className="flex-grow bg-slate-50 rounded-md p-3 overflow-y-auto text-xs space-y-2 border" style={{ padding: 0 }}>
               {logMessages.length === 0 && <p className="text-slate-400 italic">Aguardando ações...</p>}
               {logMessages.map((msg, index) => (
                 <div key={index} className="flex items-start">

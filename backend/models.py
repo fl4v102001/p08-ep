@@ -61,6 +61,8 @@ class WaterBill(Base):
     mes_mensagem = Column(String, default='')
     mes_consumo_media_m3 = Column(Integer)
     mes_consumo_mediana_m3 = Column(Integer)
+    media_movel_6_meses_anteriores = Column(Integer)
+    media_movel_12_meses_anteriores = Column(Integer)
 
     unit = relationship("Unit", back_populates="bills")
 
@@ -94,6 +96,9 @@ class WaterBill(Base):
             "mes_mensagem": self.mes_mensagem,
             "mes_consumo_media_m3": self.mes_consumo_media_m3,
             "mes_consumo_mediana_m3": self.mes_consumo_mediana_m3,
+
+            "media_movel_6_meses_anteriores": self.media_movel_6_meses_anteriores,
+            "media_movel_12_meses_anteriores": self.media_movel_12_meses_anteriores
         }
 
 class Production(Base):
