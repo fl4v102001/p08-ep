@@ -30,7 +30,7 @@ const MessagePanel: React.FC<{ message: string }> = ({ message }) => {
   }
 
   return (
-    <div className={`p-3 rounded-md border text-center my-4 font-medium ${style}`}>
+    <div className={`p-1 rounded-md border text-center my-4 font-medium ${style}`} style={{ marginTop: '0rem' }}>
       {message}
     </div>
   );
@@ -77,7 +77,7 @@ const BillDetails: React.FC<BillDetailsProps> = ({ bills, selectedBill, onSelect
 
   return (
     <div className="bg-white rounded-lg shadow-md h-full flex flex-col">
-      <div className="p-4 border-b flex justify-between items-center">
+      <div className="p-2 border-b flex justify-between items-center">
         <h2 className="text-lg font-bold text-slate-800">Detalhe da Conta de Água</h2>
         <button onClick={handleExportXLSX} disabled={bills.length === 0} className="flex items-center bg-blue-500 text-white text-sm font-semibold px-4 py-2 rounded-md hover:bg-blue-600 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed">
           Exportar
@@ -89,12 +89,12 @@ const BillDetails: React.FC<BillDetailsProps> = ({ bills, selectedBill, onSelect
 
       <div className="flex-grow overflow-y-auto">
         {bills.length === 0 ? (
-          <div className="p-6 text-center text-slate-500">Selecione uma unidade para ver as contas.</div>
+          <div className="p-2 text-center text-slate-500">Selecione uma unidade para ver as contas.</div>
         ) : (
           <ul className="divide-y divide-slate-200">
             {bills.map(bill => (
               <li key={bill.id} className={`cursor-pointer hover:bg-slate-50 ${selectedBill?.id === bill.id ? 'bg-slate-100' : ''}`} onClick={() => onSelectBill(bill)}>
-                <div className="p-4 flex justify-between items-center">
+                <div className="p-2 flex justify-between items-center">
                   <span className="font-bold text-slate-700">{bill.data_display}</span>
                   <span className={`font-bold text-lg ${selectedBill?.id === bill.id ? 'text-blue-600' : 'text-slate-800'}`}>
                     {WaterBillModel.formatCurrency(bill.total_conta_rs)}
@@ -103,10 +103,10 @@ const BillDetails: React.FC<BillDetailsProps> = ({ bills, selectedBill, onSelect
                 {selectedBill?.id === bill.id && (
                   <div className="p-4 pt-0 text-sm text-slate-600 animate-fade-in">
                     {/* NOVO: Seção para Média e Mediana */}
-                    <div className="grid grid-cols-3 gap-2 text-center text-xs p-2 bg-slate-50 rounded-md mb-4">
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs p-1 bg-slate-50 rounded-md mb-4" style={{ marginBottom: '0rem' }}>
                         <div>Consumo do Mês: <span className="font-bold text-base text-slate-800">{selectedBill.consumo_medido_m3} m³</span></div>
-                        <div>Média Condomínio: <span className="font-bold text-base text-slate-800">{selectedBill.mes_consumo_media_m3} m³</span></div>
-                        <div>Mediana Condomínio: <span className="font-bold text-base text-slate-800">{selectedBill.mes_consumo_mediana_m3} m³</span></div>
+                        <div>Média Mês: <span className="font-bold text-base text-slate-800">{selectedBill.mes_consumo_media_m3} m³</span></div>
+                        <div>Mediana Mês: <span className="font-bold text-base text-slate-800">{selectedBill.mes_consumo_mediana_m3} m³</span></div>
                     </div>
                     
                     {/* NOVO: Painel de Mensagem */}

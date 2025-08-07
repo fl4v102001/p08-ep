@@ -101,6 +101,52 @@ class WaterBill(Base):
             "media_movel_12_meses_anteriores": self.media_movel_12_meses_anteriores
         }
 
+
+class TempWaterBill(Base):
+    __tablename__ = "newtemp_agua_cobranca"
+
+    # Chave primária simples para a tabela temporária
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+
+    # Campos que correspondem à tabela final 'newtab_agua_cobranca'
+    # A maioria é anulável porque serão preenchidos durante o processamento no backend.
+    data_ref = Column(Date, nullable=False, index=True)
+    codigo_lote = Column(Integer, ForeignKey("newtab_lotes.codigo_lote"), nullable=False, index=True)
+    nome_lote = Column(String)
+    data_display = Column(String(20))
+    leitura = Column(Integer)
+    mes_pct_comprado_consumido = Column(Double)
+    consumo_medido_m3 = Column(Integer)
+    consumo_esgoto_m3 = Column(Integer)
+    consumo_produzido_m3 = Column(Integer)
+    consumo_comprado_m3 = Column(Integer)
+    faixa_esgoto = Column(String(255))
+    tarifa_esgoto = Column(Numeric(12, 2))
+    deduzir_esgoto = Column(Numeric(12, 2))
+    total_esgoto_rs = Column(Float)
+    faixa_agua = Column(String(255))
+    tarifa_agua = Column(Numeric(12, 2))
+    deduzir_agua = Column(Numeric(12, 2))
+    cobrado_agua_prod_rs = Column(Float)
+    preco_m3_comprado_rs = Column(Numeric(12, 2))
+    cobrado_agua_comp_rs = Column(Float)
+    cobrado_total_agua_rs = Column(Float)
+    cobrado_area_comum_rs = Column(Float)
+    cobrado_outros_gastos_rs = Column(Float)
+    total_conta_rs = Column(Float)
+    mes_producao_agua_m3 = Column(BigInteger)
+    mes_consumo_agua_m3 = Column(BigInteger)
+    mes_compra_agua_m3 = Column(BigInteger)
+    mes_compra_agua_rs = Column(Numeric(12, 2))
+    mes_cobrado_agua_prod_rs = Column(Numeric(12, 2))
+    data_leitura = Column(TIMESTAMP)
+    mes_mensagem = Column(String, default='')
+    mes_consumo_media_m3 = Column(Integer)
+    mes_consumo_mediana_m3 = Column(Integer)
+    media_movel_6_meses_anteriores = Column(Integer)
+    media_movel_12_meses_anteriores = Column(Integer)
+
+
 class Production(Base):
     __tablename__ = "newtab_producao"
 

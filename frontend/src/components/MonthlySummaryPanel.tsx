@@ -54,7 +54,7 @@ const MonthlySummaryPanel: React.FC<MonthlySummaryPanelProps> = ({ summaryData, 
 
   return (
     <div className="bg-blue-50 rounded-lg shadow-md h-full flex flex-col border border-blue-200">
-      <div className="p-4 border-b border-blue-200 flex items-center justify-between">
+      <div className="p-2 border-b border-blue-200 flex items-center justify-between">
         <h2 className="text-lg font-bold text-blue-800 flex items-center">
           <ChartBarIcon />
           <span className="ml-2">{summaryData.month_year}</span>
@@ -66,7 +66,7 @@ const MonthlySummaryPanel: React.FC<MonthlySummaryPanelProps> = ({ summaryData, 
           </svg>
         </button>
       </div>
-      <div className="flex-grow p-4 overflow-y-auto">
+      <div className="flex-grow p-2 overflow-y-auto">
         <div className="bg-blue-100 p-4 rounded-md mb-4 text-center">
           <p className="text-blue-800 text-lg font-semibold">Total Condomínio:</p>
           <p className="text-blue-900 text-2xl font-extrabold mt-1">
@@ -80,23 +80,23 @@ const MonthlySummaryPanel: React.FC<MonthlySummaryPanelProps> = ({ summaryData, 
         ) : (
           <ul className="space-y-2">
             {/* Cabeçalhos da tabela clicáveis para ordenação */}
-            <li className="grid grid-cols-3 gap-2 items-center font-bold text-blue-700 mb-1">
+            <li className="grid grid-cols-3 gap-1 items-center font-bold text-blue-700 mb-1">
               <button
-                className="flex items-center bg-blue-100 p-3 rounded-md shadow-sm hover:bg-blue-200 transition-colors cursor-pointer w-full text-left"
+                className="flex items-center bg-blue-100 p-2  shadow-sm hover:bg-blue-200 transition-colors cursor-pointer w-full text-left"
                 onClick={() => onSortChange('display_name')}
               >
                 Unidade
                 {sortBy === 'display_name' && (sortOrder === 'asc' ? <SortAscIcon /> : <SortDescIcon />)}
               </button>
               <button
-                className="flex items-center justify-end bg-blue-100 p-3 rounded-md shadow-sm hover:bg-blue-200 transition-colors cursor-pointer w-full text-right"
+                className="flex items-center justify-end bg-blue-100 p-2  shadow-sm hover:bg-blue-200 transition-colors cursor-pointer w-full text-right"
                 onClick={() => onSortChange('cost_rs')}
               >
                 Custo
                 {sortBy === 'cost_rs' && (sortOrder === 'asc' ? <SortAscIcon /> : <SortDescIcon />)}
               </button>
               <button
-                className="flex items-center justify-end bg-blue-100 p-3 rounded-md shadow-sm hover:bg-blue-200 transition-colors cursor-pointer w-full text-right"
+                className="flex items-center justify-end bg-blue-100 p-2  shadow-sm hover:bg-blue-200 transition-colors cursor-pointer w-full text-right"
                 onClick={() => onSortChange('consumption_m3')}
               >
                 Consumo
@@ -106,10 +106,10 @@ const MonthlySummaryPanel: React.FC<MonthlySummaryPanelProps> = ({ summaryData, 
 
             {/* Itens da lista de unidades */}
             {summaryData.unit_details.map(unit => (
-              <li key={unit.codigo_lote} className="grid grid-cols-3 gap-2 items-center">
-                <span className="text-slate-700 bg-white p-3 rounded-md shadow-sm">{unit.display_name}</span> {/* USANDO display_name */}
-                <span className="text-slate-600 bg-white p-3 rounded-md shadow-sm text-right">{MonthlySummaryModel.formatCurrency(unit.cost_rs)}</span>
-                <span className="text-slate-600 bg-white p-3 rounded-md shadow-sm text-right">{MonthlySummaryModel.formatConsumption(unit.consumption_m3)}</span>
+              <li key={unit.codigo_lote} className="grid grid-cols-3 gap-1 items-center">
+                <span className="text-slate-700 bg-white p-1  shadow-sm">{unit.display_name}</span> {/* USANDO display_name */}
+                <span className="text-slate-600 bg-white p-1  shadow-sm text-right">{MonthlySummaryModel.formatCurrency(unit.cost_rs)}</span>
+                <span className="text-slate-600 bg-white p-1  shadow-sm text-right">{MonthlySummaryModel.formatConsumption(unit.consumption_m3)}</span>
               </li>
             ))}
           </ul>

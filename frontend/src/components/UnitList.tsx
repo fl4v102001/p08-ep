@@ -46,7 +46,7 @@ const UnitList: React.FC<UnitListProps> = ({ units, selectedUnit, onSelectUnit, 
 
   return (
     <div ref={listContainerRef} className="bg-white rounded-lg shadow-md h-full overflow-y-auto">
-      <h2 className="text-lg font-bold text-slate-800 p-4 border-b">Lista de Unidades</h2>
+      <h2 className="text-lg font-bold text-slate-800 p-2 border-b">Lista de Unidades</h2>
       <ul className="divide-y divide-slate-200">
         {units.map(unit => (
           <li
@@ -57,7 +57,7 @@ const UnitList: React.FC<UnitListProps> = ({ units, selectedUnit, onSelectUnit, 
           >
             <button
               onClick={() => onSelectUnit(unit)}
-              className={`w-full text-left p-4 hover:bg-blue-50 transition-colors ${selectedUnit?.codigo_lote === unit.codigo_lote ? 'bg-blue-100' : ''}`}
+              className={`w-full text-left p-2 hover:bg-blue-50 transition-colors ${selectedUnit?.codigo_lote === unit.codigo_lote ? 'bg-blue-100' : ''}`}
             >
               <p className={`font-semibold ${selectedUnit?.codigo_lote === unit.codigo_lote ? 'text-blue-700' : 'text-slate-700'}`}>{unit.nome_lote}</p>
               <p className="text-sm text-slate-500">Código: {unit.codigo_lote}</p>

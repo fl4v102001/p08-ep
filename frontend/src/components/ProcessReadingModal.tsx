@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { fetchLatestReadings, LatestReading } from '../services/apiService';
+import { fetchLatestReadings, LatestReading, submitProcessedReadings, ProcessReadingsPayload } from '../services/apiService';
 import Papa from 'papaparse';
 
 interface ProcessReadingModalProps {
@@ -45,6 +45,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
     mediana_m3: null,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logMessages, setLogMessages] = useState<LogMessage[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -81,7 +82,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
   };
 
   // ATUALIZADO: A função agora também gera as mensagens com base na mediana
-  const runConsistencyCheck = (readingsToCheck: Map<number, NewReading>) => {
+  const runConsistencyCheck = (readingsToCheck: Map<number, NewReading>): number => {
     addLog("Executando verificação de consistência...", 'info');
     let errorCount = 0;
 
@@ -154,6 +155,49 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
       addLog("Verificação de consistência concluída. Nenhum erro encontrado.", 'success');
     } else {
       addLog(`Verificação de consistência concluída. ${errorCount} erro(s) encontrado(s).`, 'error');
+    }
+    return errorCount;
+  };
+
+  const handleSubmit = async () => {
+    addLog("Iniciando processo de submissão...", 'info');
+    const errorCount = runConsistencyCheck(newReadings);
+
+    if (errorCount > 0) {
+      addLog(`Submissão cancelada. Foram encontrados ${errorCount} erros de consistência.`, 'error');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // 1. Preparar o Payload
+    const readingsArray = Array.from(newReadings.entries()).map(([codigo_lote, data]) => ({
+      codigo_lote,
+      data_leitura_atual: data.data_leitura_atual,
+      leitura_atual: data.leitura_atual,
+      consumo: data.consumo,
+      mes_mensagem: data.mes_mensagem,
+    }));
+
+    const payload: ProcessReadingsPayload = {
+      production_data: {
+        data_ref: productionData.data_ref,
+        producao_m3: productionData.producao_m3,
+        outros_rs: productionData.outros_rs,
+        compra_rs: productionData.compra_rs,
+      },
+      unit_readings: readingsArray,
+    };
+
+    try {
+      const result = await submitProcessedReadings(payload);
+      addLog(result.message, 'success');
+      setTimeout(() => { onClose(); }, 2000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Ocorreu um erro desconhecido.";
+      addLog(`Falha na submissão: ${errorMessage}`, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -394,8 +438,12 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
         </main>
 
         <footer className="p-4 border-t flex justify-between bg-slate-50 rounded-b-lg">
-          <button onClick={onClose} className="bg-white border border-slate-300 text-slate-800 px-6 py-2 rounded-md hover:bg-slate-100 transition">Voltar</button>
-          <button className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition">Avançar</button>
+          <button onClick={onClose} disabled={isSubmitting} className="bg-white border border-slate-300 text-slate-800 px-6 py-2 rounded-md hover:bg-slate-100 transition disabled:bg-slate-200 disabled:cursor-not-allowed">
+            Voltar
+          </button>
+          <button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700 transition disabled:bg-slate-400 disabled:cursor-not-allowed">
+            {isSubmitting ? 'Enviando...' : 'Avançar'}
+          </button>
         </footer>
       </div>
     </div>

@@ -110,7 +110,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
 
   return (
     // ETAPA 1: A grade principal agora tem 12 colunas
-    <main className="flex-grow p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-hidden">
+    <main className="flex-grow p-2 lg:p-3 grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-hidden">
       {isDataLoading ? (
         <div className="lg:col-span-12 flex justify-center items-center">
           <div className="text-center">

@@ -169,3 +169,33 @@ export async function fetchLatestReadings(): Promise<LatestReading[]> {
   const response = await authenticatedFetch(`${API_BASE_URL}/api/latest-readings`);
   return response.json();
 }
+
+/**
+ * Interface para o payload de processamento de leituras.
+ */
+export interface ProcessReadingsPayload {
+  production_data: {
+    data_ref: string | null;
+    producao_m3: number | null;
+    outros_rs: number | null;
+    compra_rs: number | null;
+  };
+  unit_readings: {
+    codigo_lote: number;
+    data_leitura_atual: string | null;
+    leitura_atual: number | null;
+    consumo: number | null;
+    mes_mensagem: string;
+  }[];
+}
+
+/**
+ * Envia os dados de leitura processados para o backend.
+ */
+export async function submitProcessedReadings(payload: ProcessReadingsPayload): Promise<{ message: string }> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/process-readings`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+  return response.json();
+}

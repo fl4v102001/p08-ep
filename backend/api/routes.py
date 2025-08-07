@@ -63,3 +63,31 @@ def get_latest_readings():
     except Exception as e:
         print(f"Erro inesperado em get_latest_readings: {e}")
         return jsonify({'error': 'Ocorreu um erro interno ao buscar as leituras.'}), 500
+
+@api_bp.route('/process-readings', methods=['POST'])
+@jwt_required
+def process_readings():
+    """
+    Endpoint para receber os dados de leitura processados do frontend.
+    Por enquanto, apenas recebe, imprime no console e retorna sucesso.
+    """
+    try:
+        # Etapa 2: Recebimento e Validação do Payload
+        payload = request.get_json()
+        if not payload:
+            return jsonify({"error": "Payload JSON não encontrado ou inválido."}), 400
+
+        # Etapa 3: Processamento (Ação Principal) - Salvar payload em arquivo
+        # Usamos o módulo json para uma impressão mais legível (pretty-print)
+        import json
+        with open("t.txt", "w", encoding="utf-8") as f:
+            json.dump(payload, f, indent=2, ensure_ascii=False)
+        print("Payload recebido e salvo com sucesso no arquivo t.txt")
+
+        # Etapa 4: Envio da Resposta de Sucesso ao Frontend
+        return jsonify({"message": "Dados recebidos e salvos com sucesso!"}), 200
+
+    except Exception as e:
+        # Etapa 5: Tratamento de Erros Genéricos
+        print(f"Erro inesperado em process_readings: {e}")
+        return jsonify({'error': 'Ocorreu um erro interno no servidor ao processar as leituras.'}), 500
