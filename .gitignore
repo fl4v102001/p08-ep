@@ -14,3 +14,4 @@ __pycache__/
 import_codenames.py
 import_xls_to_postgres.py
 frontend/node_modules/
+t.txt

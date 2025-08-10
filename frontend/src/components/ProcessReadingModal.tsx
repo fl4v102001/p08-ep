@@ -176,7 +176,6 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
       data_leitura_atual: data.data_leitura_atual,
       leitura_atual: data.leitura_atual,
       consumo: data.consumo,
-      mes_mensagem: data.mes_mensagem,
     }));
 
     const payload: ProcessReadingsPayload = {
@@ -260,8 +259,25 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
             if (!isNaN(codigo_lote) && !isNaN(leitura_atual) && latestReading) {
               processedUnitCodes.add(codigo_lote);
               const consumo = leitura_atual - (latestReading.leitura_anterior || 0);
-              updatedReadings.set(codigo_lote, { 
-                data_leitura_atual: dataLeituraStr || null,
+
+              // Converte a data do formato DD/MM/YY para YYYY-MM-DDTHH:MM:SS
+              let formattedDate: string | null = null;
+              if (dataLeituraStr) {
+                try {
+                  const parts = dataLeituraStr.split('/');
+                  if (parts.length === 3) {
+                    const [day, month, year] = parts;
+                    const fullYear = `20${year}`; // Assume anos 20xx
+                    // Formato ISO 8601 que o backend Pydantic espera
+                    formattedDate = `${fullYear}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`;
+                  }
+                } catch (e) {
+                  addLog(`Formato de data inválido para a unidade ${codigo_lote}: "${dataLeituraStr}". A data não foi carregada.`, 'error');
+                }
+              }
+
+              updatedReadings.set(codigo_lote, {
+                data_leitura_atual: formattedDate,
                 leitura_atual, 
                 consumo, 
                 mes_mensagem: '' ,
@@ -332,7 +348,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
           <h2 className="text-xl font-bold text-slate-800">Processar Arquivo de Leitura</h2>
         </header>
 
-        <main className="flex-grow p-4 grid grid-cols-4 gap-6 overflow-hidden">
+        <main className="flex-grow p-2 grid grid-cols-4 gap-2 overflow-hidden">
           <div className="col-span-3 flex flex-col overflow-y-auto">
             {isLoading ? (
               <div className="flex justify-center items-center h-full"><p>Carregando...</p></div>
@@ -340,8 +356,8 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
               <div className="flex justify-center items-center h-full text-red-600"><p>{error}</p></div>
             ) : (
               <>
-                <div className="mb-4 p-4 border rounded-lg bg-slate-50">
-                  <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+                <div className="mb-4 p-2 border rounded-lg bg-slate-50" style={{ marginBottom: '8px', marginLeft: '8px' }}>
+                  <div className="grid grid-cols-2 md:grid-cols-7 gap-2">
                     <div>
                       <label htmlFor="data_ref" className="block text-sm font-medium text-slate-700 mb-1">Data Referência</label>
                       <input type="text" id="data_ref" value={productionData.data_ref ?? ''} onChange={(e) => handleProductionDataChange('data_ref', e.target.value)} className="w-full p-2 border rounded-md" disabled/>
@@ -359,7 +375,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
                       <input type="number" id="outros_rs" value={productionData.outros_rs ?? ''} onChange={(e) => handleProductionDataChange('outros_rs', e.target.value)} className="w-full p-2 border rounded-md" />
                     </div>
                     <div>
-                      <label htmlFor="total_consumo_m3" className="block text-sm font-medium text-slate-700 mb-1">Total Consumo m³</label>
+                      <label htmlFor="total_consumo_m3" className="block text-sm font-medium text-slate-700 mb-1">Total m³</label>
                       <input type="number" id="total_consumo_m3" value={productionData.total_consumo_m3 ?? ''} className="w-full p-2 border rounded-md bg-slate-200" disabled />
                     </div>
                     <div>
@@ -374,7 +390,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
                 </div>
 
                 <div className="w-full">
-                  <div className="grid grid-cols-[2fr,1fr,2fr,1fr,1fr,2fr] gap-x-4 sticky top-0 bg-slate-100 p-3 rounded-t-md border-b z-10">
+                  <div className="grid grid-cols-[2fr,1fr,2fr,1fr,1fr,2fr] gap-x-4 sticky top-0 bg-slate-100 p-1 rounded-t-md border-b z-10">
                     <span className="font-bold text-slate-600">Unidade</span>
                     <span className="font-bold text-slate-600">Leitura Anterior</span>
                     <span className="font-bold text-slate-600">Data Leitura Atual</span>

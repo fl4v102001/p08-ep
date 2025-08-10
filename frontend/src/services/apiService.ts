@@ -185,7 +185,6 @@ export interface ProcessReadingsPayload {
     data_leitura_atual: string | null;
     leitura_atual: number | null;
     consumo: number | null;
-    mes_mensagem: string;
   }[];
 }
 

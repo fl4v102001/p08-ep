@@ -64,6 +64,8 @@ class WaterBill(Base):
     media_movel_6_meses_anteriores = Column(Integer)
     media_movel_12_meses_anteriores = Column(Integer)
 
+    mes_outros_gastos_rs = Column(Numeric(12,2), default=0.0)
+
     unit = relationship("Unit", back_populates="bills")
 
     def to_dict(self):
@@ -98,7 +100,9 @@ class WaterBill(Base):
             "mes_consumo_mediana_m3": self.mes_consumo_mediana_m3,
 
             "media_movel_6_meses_anteriores": self.media_movel_6_meses_anteriores,
-            "media_movel_12_meses_anteriores": self.media_movel_12_meses_anteriores
+            "media_movel_12_meses_anteriores": self.media_movel_12_meses_anteriores,
+
+            "mes_outros_gastos_rs": float(self.mes_outros_gastos_rs) if self.mes_outros_gastos_rs is not None else 0.0
         }
 
 
@@ -145,6 +149,21 @@ class TempWaterBill(Base):
     mes_consumo_mediana_m3 = Column(Integer)
     media_movel_6_meses_anteriores = Column(Integer)
     media_movel_12_meses_anteriores = Column(Integer)
+    mes_outros_gastos_rs = Column(Numeric(12,2), default=0.0)
+
+
+class Tariff(Base):
+    __tablename__ = "newtab_tarifa"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    data_vigencia = Column(TIMESTAMP(timezone=False))
+    data_fim_vigencia = Column(TIMESTAMP(timezone=False))
+    faixa = Column(String)
+    consumo_inicial = Column(BigInteger)
+    consumo_final = Column(BigInteger)
+    valor_m3 = Column(Double)
+    parcela_deduzir = Column(Double)
+    vigente = Column(Boolean)
 
 
 class Production(Base):
