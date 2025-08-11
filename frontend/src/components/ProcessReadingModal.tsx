@@ -1,9 +1,6 @@
 import React, { useEffect, useReducer, useRef } from 'react';
 import { fetchLatestReadings, submitProcessedReadings, ProcessReadingsPayload, LatestReading } from '../services/apiService';
-
-//import { modalReducer, initialState, NewReading, ProcessedResult } from './ProcessReading.state';
-import { modalReducer, initialState, NewReading, ProcessedResult } from './ProcessReading.state';
-
+import { modalReducer, initialState, NewReading } from './ProcessReading.state';
 import Step1_ReadingInput from './Step1_ReadingInput';
 import Step2_ResultsDisplay from './Step2_ResultsDisplay';
 import LogPanel from './LogPanel';
@@ -123,21 +120,31 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
     };
 
     try {
+      // --- ALTERAÇÃO PRINCIPAL ---
+      // Agora consome a resposta real do backend
       const result = await submitProcessedReadings(payload);
-      const mockResults: ProcessedResult[] = state.latestReadings.map(unit => {
-        const reading = state.newReadings.get(unit.codigo_lote);
-        const total = (reading?.consumo || 0) * 5.5 + 25;
-        return {
-          codigo_lote: unit.codigo_lote, nome_lote: unit.nome_lote,
-          prod_rs: (reading?.consumo || 0) * 3.0, esgoto_rs: (reading?.consumo || 0) * 2.5,
-          comp_rs: 10.0, outros_rs: 15.0, total_rs: total,
-          mensagem: reading?.mes_mensagem || 'N/A',
-        };
-      });
-      dispatch({ type: 'SUBMIT_SUCCESS', payload: { message: result.message, mockResults } });
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Erro desconhecido.";
-      dispatch({ type: 'SUBMIT_FAILURE', payload: errorMessage });
+      
+      // Adiciona os logs retornados pelo backend ao painel
+      if (result.logs) {
+        dispatch({ type: 'ADD_BACKEND_LOGS', payload: result.logs });
+      }
+
+      // Se a operação foi bem-sucedida e retornou dados, avança para a próxima etapa
+      if (result.data) {
+        dispatch({ type: 'SUBMIT_SUCCESS', payload: { results: result.data } });
+      } else {
+        // Se não houver dados, significa que houve um erro no pipeline
+        dispatch({ type: 'SUBMIT_FAILURE' });
+      }
+    } catch (err: any) {
+      // Captura erros de rede ou erros retornados pelo backend
+      const errorMessage = err.message || "Erro desconhecido.";
+      addLog(`Falha na submissão: ${errorMessage}`, 'error');
+      // Se o erro contiver logs do backend, adiciona-os
+      if (err.cause) {
+        dispatch({ type: 'ADD_BACKEND_LOGS', payload: err.cause });
+      }
+      dispatch({ type: 'SUBMIT_FAILURE' });
     }
   };
 

@@ -7,15 +7,6 @@ import { MonthlySummary } from '../../types';
  */
 export class MonthlySummaryModel {
   /**
-   * Formata um valor monetário em Reais (R$).
-   * @param value O valor numérico.
-   * @returns O valor formatado como string.
-   */
-  static formatCurrency(value: number): string {
-    return `R$ ${value.toFixed(2).replace('.', ',')}`;
-  }
-
-  /**
    * Formata o consumo em metros cúbicos (m³).
    * @param value O valor numérico.
    * @returns O consumo formatado como string.
@@ -24,5 +15,5 @@ export class MonthlySummaryModel {
     return `${value} m³`;
   }
 
-  // Você pode adicionar mais funções aqui, como cálculos de média, comparações, etc.
+  // A função formatCurrency foi removida daqui e centralizada em monetaryUtils.ts
 }

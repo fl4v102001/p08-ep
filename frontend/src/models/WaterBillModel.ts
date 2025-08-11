@@ -15,14 +15,5 @@ export class WaterBillModel {
     return (bill.consumo_produzido_m3 || 0) + (bill.consumo_comprado_m3 || 0);
   }
 
-  /**
-   * Formata um valor monetário em Reais (R$).
-   * @param value O valor numérico.
-   * @returns O valor formatado como string.
-   */
-  static formatCurrency(value: number): string {
-    return `R$ ${value.toFixed(2).replace('.', ',')}`;
-  }
-
-  // Você pode adicionar mais funções aqui, como cálculos de impostos, análises, etc.
+  // A função formatCurrency foi removida daqui e centralizada em monetaryUtils.ts
 }

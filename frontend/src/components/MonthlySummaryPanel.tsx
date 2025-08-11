@@ -2,6 +2,7 @@
 import React from 'react';
 import { MonthlySummary } from '../../types';
 import { MonthlySummaryModel } from '../models';
+import { formatCurrency } from '../utils/monetaryUtils'; // ATUALIZADO
 
 // Icone para o painel de resumo
 const ChartBarIcon = () => (
@@ -70,7 +71,7 @@ const MonthlySummaryPanel: React.FC<MonthlySummaryPanelProps> = ({ summaryData, 
         <div className="bg-blue-100 p-4 rounded-md mb-4 text-center">
           <p className="text-blue-800 text-lg font-semibold">Total Condomínio:</p>
           <p className="text-blue-900 text-2xl font-extrabold mt-1">
-            {MonthlySummaryModel.formatCurrency(summaryData.total_condo_cost_rs)} | {MonthlySummaryModel.formatConsumption(summaryData.total_condo_consumption_m3)}
+            {formatCurrency(summaryData.total_condo_cost_rs)} | {MonthlySummaryModel.formatConsumption(summaryData.total_condo_consumption_m3)}
           </p>
         </div>
 
@@ -108,7 +109,7 @@ const MonthlySummaryPanel: React.FC<MonthlySummaryPanelProps> = ({ summaryData, 
             {summaryData.unit_details.map(unit => (
               <li key={unit.codigo_lote} className="grid grid-cols-3 gap-1 items-center">
                 <span className="text-slate-700 bg-white p-1  shadow-sm">{unit.display_name}</span> {/* USANDO display_name */}
-                <span className="text-slate-600 bg-white p-1  shadow-sm text-right">{MonthlySummaryModel.formatCurrency(unit.cost_rs)}</span>
+                <span className="text-slate-600 bg-white p-1 shadow-sm text-right">{formatCurrency(unit.cost_rs)}</span>
                 <span className="text-slate-600 bg-white p-1  shadow-sm text-right">{MonthlySummaryModel.formatConsumption(unit.consumption_m3)}</span>
               </li>
             ))}

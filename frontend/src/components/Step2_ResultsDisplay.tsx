@@ -1,12 +1,12 @@
 import React from 'react';
-import { ProcessedResult } from './ProcessReading.state';
+import { PipelineResult as ProcessedResult } from '../services/apiService';
+import { formatCurrency } from '../utils/monetaryUtils';
 
 interface Step2Props {
   results: ProcessedResult[];
 }
 
 const Step2_ResultsDisplay: React.FC<Step2Props> = ({ results }) => {
-  const formatCurrency = (value: number) => `R$ ${value.toFixed(2).replace('.', ',')}`;
   
   return (
     <div className="col-span-3 flex flex-col overflow-y-auto">
