@@ -35,6 +35,8 @@ export interface WaterBill {
   mes_mensagem: string;
   mes_consumo_media_m3: number;
   mes_consumo_mediana_m3: number;
+
+  mes_outros_gastos_rs: number;
 }
 
 export interface MonthlySummary {
