@@ -1,5 +1,5 @@
 // frontend/src/utils/dateUtils.ts
-
+ 
 /**
  * Extrai o ano e o mês de uma string de data no formato YYYY-MM-DD.
  * @param dateString A string de data (ex: "2025-07-01").
@@ -22,11 +22,12 @@ export const formatMonthYear = (date: Date): string => {
   const options: Intl.DateTimeFormatOptions = { month: 'long', year: 'numeric' };
   const formatted = new Intl.DateTimeFormat('pt-BR', options).format(date);
   // Capitaliza a primeira letra do mês
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  return formatted.toUpperCase();
 };
 
 /**
- * Converte uma string de data e hora do CSV (DD/MM/YYYY HH:mm) para o formato ISO 8601 (YYYY-MM-DDTHH:mm:ss).
+ * Converte uma string de data do CSV (DD/MM/YYYY, DD/MM/YY, ou com HH:mm) para o formato ISO 8601 (YYYY-MM-DDTHH:mm:ss).
+ * Se a hora for omitida, assume-se 00:00:00.
  * @param csvDateTime A string de data e hora do CSV.
  * @returns A data no formato ISO 8601 ou null se o formato for inválido.
  */
@@ -34,25 +35,55 @@ export const parseCsvDateTimeToISO = (csvDateTime: string | null | undefined): s
   if (!csvDateTime) {
     return null;
   }
-
-  // Ex: "18/07/2025 08:08"
+ 
   const parts = csvDateTime.trim().split(' ');
-  if (parts.length !== 2) {
-    console.warn("Formato de data e hora inválido (esperado 'DD/MM/YYYY HH:mm'):", csvDateTime);
+  const datePart = parts[0];
+  const timePart = parts.length > 1 ? parts[1] : null;
+ 
+  // Valida se o formato tem mais partes que o esperado (data e hora)
+  if (parts.length > 2) {
+    console.warn("Formato de data e hora inválido (partes em excesso):", csvDateTime);
+    return null;
+  }
+ 
+  // Valida e extrai a parte da data
+  const [day, month, yearStr] = datePart.split('/');
+  if (!day || !month || !yearStr) {
+    console.warn("Formato de data incompleto (esperado DD/MM/YYYY ou DD/MM/YY):", datePart);
+    return null;
+  }
+ 
+  let year: number;
+  if (yearStr.length === 4) {
+    year = parseInt(yearStr, 10);
+  } else if (yearStr.length === 2) {
+    const currentYear = new Date().getFullYear();
+    const currentCentury = Math.floor(currentYear / 100) * 100;
+    year = parseInt(yearStr, 10) + currentCentury;
+    // Heurística para adivinhar o século: se o ano de 2 dígitos resultar em uma data
+    // mais de 50 anos no futuro, assume-se que é do século passado.
+    if (year > currentYear + 50) {
+      year -= 100;
+    }
+  } else {
+    console.warn("Formato de ano inválido (esperado YYYY ou YY):", yearStr);
     return null;
   }
 
-  const [datePart, timePart] = parts;
-  const [day, month, year] = datePart.split('/');
-  const [hours, minutes] = timePart.split(':');
-
-  // Validação da estrutura
-  if (!day || !month || !year || year.length !== 4 || !hours || !minutes) {
-    console.warn("Componentes de data/hora inválidos ou ausentes:", csvDateTime);
-    return null;
+  let hours = '00';
+  let minutes = '00';
+ 
+  // Valida e extrai a parte da hora, se existir
+  if (timePart) {
+    const timeComponents = timePart.split(':');
+    if (timeComponents.length !== 2) {
+      console.warn("Formato de hora inválido (esperado HH:mm):", timePart);
+      return null;
+    }
+    [hours, minutes] = timeComponents;
   }
-
-  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`;
+ 
+  return `${year.toString()}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}:00`;
 };
 
 /**
