@@ -77,6 +77,15 @@ def _step3_run_total_rules(db: Session, data_ref: date):
     db.execute(text("CALL procedure_update_30(:data_ref)"), {'data_ref': data_ref})
     print("Fase 3: 'Update_30_totaisRS' executado com sucesso.")
 
+# --- FASE 4: Execução de mensagens ---
+def _step4_run_mensagens(db: Session, data_ref: date):
+    """
+    Executa o statement SQL 'Update_90_Mensagem' no PostgreSQL.
+    Levanta uma exceção em caso de erro.
+    """
+    db.execute(text("CALL procedure_update_90(:data_ref)"), {'data_ref': data_ref})
+    print("Fase 3: 'Update_90_Mensagem' executado com sucesso.")
+
 
 # --- FUNÇÃO ORQUESTRADORA PRINCIPAL ---
 def run_billing_pipeline_service(db: Session, payload: ProcessReadingsPayload):
@@ -99,7 +108,12 @@ def run_billing_pipeline_service(db: Session, payload: ProcessReadingsPayload):
         # Fase 3: Executar o segundo cálculo
         _step3_run_total_rules(db, data_ref_date)
         logs.append({"status": "OK", "message": "Fase 3: Procedimento de cálculo de totais executado."})
-        
+
+        # Fase 4: Executar as mensagens
+        _step4_run_mensagens(db, data_ref_date)
+        logs.append({"status": "OK", "message": "Fase 4: Procedimento de mensagens."})
+
+
         # Se todas as etapas foram bem-sucedidas, faz o commit
         db.commit()
 
@@ -116,6 +130,12 @@ def run_billing_pipeline_service(db: Session, payload: ProcessReadingsPayload):
             "comp_rs": r.cobrado_agua_comp_rs,
             "outros_rs": r.cobrado_outros_gastos_rs,
             "total_rs": r.total_conta_rs,
+            "faixa_agua": r.faixa_agua,
+            "tarifa_agua": r.tarifa_agua,
+            "deduzir_agua": r.deduzir_agua,
+            "faixa_esgoto": r.faixa_esgoto,
+            "tarifa_esgoto": r.tarifa_esgoto,
+            "deduzir_esgoto": r.deduzir_esgoto,
             "mensagem": r.mes_mensagem
         } for r in results]
 

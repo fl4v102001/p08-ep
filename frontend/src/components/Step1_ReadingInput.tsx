@@ -52,14 +52,14 @@ const Step1_ReadingInput: React.FC<Step1Props> = ({ state, dispatch }) => {
         </div>
       </div>
       <div className="w-full flex-grow overflow-y-auto">
-        <div className="grid grid-cols-[2fr,1fr,2fr,1fr,1fr,2fr] gap-x-4 sticky top-0 bg-slate-100 p-1 rounded-t-md border-b z-10 text-xs font-bold text-slate-600">
+        <div className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,3fr] gap-x-2 sticky top-0 bg-slate-100 p-1 rounded-t-md border-b z-10 text-xs font-bold text-slate-600">
           <span>Unidade</span><span>Leitura Anterior</span><span>Data Leitura Atual</span><span>Leitura Atual</span><span>Consumo</span><span>Mensagem</span>
         </div>
         <div className="divide-y divide-slate-200">
           {state.latestReadings.map(unit => {
             const currentReading = state.newReadings.get(unit.codigo_lote);
             return (
-              <div key={unit.codigo_lote} className="grid grid-cols-[2fr,1fr,2fr,1fr,1fr,2fr] py-0.5 items-center text-sm">
+              <div key={unit.codigo_lote} className="grid grid-cols-[2fr,1fr,1fr,1fr,1fr,3fr] py-0.5 items-center text-sm">
                 <div className="text-slate-700 px-2">{unit.nome_lote} ({unit.codigo_lote})</div>
                 <div className="text-slate-500 px-2">{unit.leitura_anterior}</div>
                 <div className="px-1"><input type="text" value={currentReading?.data_leitura_atual || ''} className="w-full p-1 border rounded-md bg-slate-100 text-slate-500 text-sm" disabled /></div>

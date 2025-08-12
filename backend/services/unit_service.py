@@ -62,6 +62,7 @@ def get_latest_readings_service(db: Session):
             Unit.nome_lote,
             WaterBill.leitura,
             WaterBill.data_ref,
+            WaterBill.consumo_medido_m3,
             WaterBill.media_movel_6_meses_anteriores,
             WaterBill.media_movel_12_meses_anteriores
         )
@@ -79,6 +80,7 @@ def get_latest_readings_service(db: Session):
             "nome_lote": row.nome_lote,
             "leitura_anterior": row.leitura,
             "data_ref": row.data_ref.strftime('%Y-%m-%d') if row.data_ref else None,
+            "consumo_medido_m3": row.consumo_medido_m3,
             "media_movel_6_meses_anteriores": row.media_movel_6_meses_anteriores,
             "media_movel_12_meses_anteriores": row.media_movel_12_meses_anteriores,
         } for row in results

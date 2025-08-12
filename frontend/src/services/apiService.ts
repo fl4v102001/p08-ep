@@ -89,6 +89,7 @@ export interface LatestReading {
   nome_lote: string;
   leitura_anterior: number;
   data_ref: string | null;
+  consumo_medido_m3: number; // NOVO: Esgoto em m³ = ultimo consumo
   media_movel_6_meses_anteriores: number;
   media_movel_12_meses_anteriores: number;
 }
@@ -122,9 +123,15 @@ export interface PipelineResult {
     comp_rs: number | null;
     outros_rs: number | null;
     total_rs: number | null;
+    faixa_agua: string | null;
+    tarifa_agua: number | null;
+    deduzir_agua: number | null;
+    faixa_esgoto: string | null;
+    tarifa_esgoto: number | null;
+    deduzir_esgoto: number | null;
     mensagem: string | null;
 }
-
+ 
 export interface BackendLog {
     status: 'OK' | 'ERRO';
     message: string;

@@ -1,6 +1,7 @@
 import React from 'react';
 import Papa from 'papaparse';
 import { ModalState, ModalAction } from './ProcessReading.state';
+import { parseCsvDateTimeToISO } from '../utils/dateUtils';
 
 interface LogPanelProps {
   state: ModalState;
@@ -23,9 +24,12 @@ const LogPanel: React.FC<LogPanelProps> = ({ state, dispatch, fileInputRef }) =>
             const latest = state.latestReadings.find(lr => lr.codigo_lote === codigo_lote);
             if (!isNaN(codigo_lote) && !isNaN(leitura_atual) && latest) {
               const consumo = leitura_atual - (latest.leitura_anterior || 0);
-              const [day, month, year] = data.split('/');
-              const formattedDate = `20${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T00:00:00`;
-              updatedReadings.set(codigo_lote, { ...updatedReadings.get(codigo_lote)!, data_leitura_atual: formattedDate, leitura_atual, consumo });
+              const formattedDate = parseCsvDateTimeToISO(data);
+              if (formattedDate) {
+                updatedReadings.set(codigo_lote, { ...updatedReadings.get(codigo_lote)!, data_leitura_atual: formattedDate, leitura_atual, consumo });
+              } else {
+                dispatch({ type: 'ADD_LOG', payload: { text: `Data inválida no CSV para o lote ${codigo_lote}: "${data}". A linha foi ignorada.`, type: 'error', timestamp: new Date().toLocaleTimeString('pt-BR') } });
+              }
             }
           });
           dispatch({ type: 'UPDATE_NEW_READINGS', payload: updatedReadings });

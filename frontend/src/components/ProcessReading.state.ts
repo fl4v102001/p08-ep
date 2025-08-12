@@ -6,6 +6,7 @@ export interface NewReading {
   leitura_atual: number | null;
   consumo: number | null;
   mes_mensagem: string;
+  consumo_medido_m3: number; // NOVO: Esgoto em m³
   media_movel_6_meses_anteriores: number;
   media_movel_12_meses_anteriores: number;
 }

@@ -41,6 +41,7 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
           data.forEach(unit => {
             initialNewReadings.set(unit.codigo_lote, {
               data_leitura_atual: null, leitura_atual: null, consumo: null, mes_mensagem: '',
+              consumo_medido_m3: unit.consumo_medido_m3,
               media_movel_12_meses_anteriores: unit.media_movel_12_meses_anteriores,
               media_movel_6_meses_anteriores: unit.media_movel_6_meses_anteriores
             });
@@ -66,15 +67,16 @@ const ProcessReadingModal: React.FC<ProcessReadingModalProps> = ({ isOpen, onClo
     const updatedReadings = new Map(state.newReadings);
     updatedReadings.forEach((reading, key) => {
         let message = '';
-        const { consumo, leitura_atual, media_movel_6_meses_anteriores } = reading;
+        const { consumo, leitura_atual, consumo_medido_m3, media_movel_6_meses_anteriores, media_movel_12_meses_anteriores } = reading;
         const { mediana_m3 } = stats;
         if (consumo !== null && leitura_atual !== null) {
             if (consumo < 0 || leitura_atual === 0) message = 'Leitura inválida ou consumo negativo.';
-            else if (mediana_m3 > 0 && consumo >= 2.5 * mediana_m3) { message = 'Atenção: Verificar URGENTE'; addLog(`Verificar URGENTE ${key}`, 'info'); }
-            else if (mediana_m3 > 0 && consumo > 2 * mediana_m3) { message = 'Atenção: Consumo muito alto'; addLog(`Muito ALTO ${key}`, 'info'); }
+            else if (mediana_m3 > 0 && consumo >= 2.5 * mediana_m3) { message = 'Atenção: URGENTE'; addLog(`Verificar URGENTE ${key}`, 'info'); }
+            else if (mediana_m3 > 0 && consumo > 2 * mediana_m3) { message = 'Atenção: Muito alto'; addLog(`Muito ALTO ${key}`, 'info'); }
             else if (consumo === 0) message = 'Consumo zerado neste mês.';
-            else if (consumo > 1.5 * media_movel_6_meses_anteriores && consumo >= 1.5 * mediana_m3) { message = 'Consumo ANORMAL'; addLog(`Consumo ANORMAL ${key}`, 'info'); }
-            else message = 'Consumo normal.';
+
+            if (consumo > 1.5 * media_movel_6_meses_anteriores && consumo >= 1.5 * mediana_m3) 
+              { message += ' | ANORMAL '+consumo_medido_m3+'(a),'+media_movel_6_meses_anteriores+'(6),'+media_movel_12_meses_anteriores+'(12)'; addLog(`Consumo ANORMAL ${key}`, 'info'); }
         } else {
             message = 'Leitura pendente.';
         }

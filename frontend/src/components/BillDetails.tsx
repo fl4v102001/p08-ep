@@ -35,7 +35,39 @@ const MessagePanel: React.FC<{ message: string }> = ({ message }) => {
 
 const BillDetails: React.FC<BillDetailsProps> = ({ bills, selectedBill, onSelectBill }) => {
   const handleExportXLSX = () => {
-    // ... (lógica de exportação sem alterações)
+    if (bills.length === 0) {
+      alert("Selecione uma unidade com contas disponíveis para exportar.");
+      return;
+    }
+
+    const dataForSheet: (string | number | undefined)[][] = [];
+    const tableHeader = ['Descrição', 'Consumo', 'Faixa', 'Tarifa / m³', 'Deduzir', 'Sub-Total'];
+
+    bills.forEach(bill => {
+      dataForSheet.push([`Detalhe da Conta de ${bill.codigo_lote} ${bill.data_display}`]);
+      // ATUALIZADO: Adiciona a mensagem e comparações à exportação
+      dataForSheet.push([`Consumo: ${bill.consumo_medido_m3} m³`, `Média: ${bill.mes_consumo_media_m3} m³`, `Mediana: ${bill.mes_consumo_mediana_m3} m³`]);
+      dataForSheet.push([`Mensagem: ${bill.mes_mensagem}`]);
+      dataForSheet.push([]); // Linha em branco
+      dataForSheet.push(tableHeader);
+      
+      dataForSheet.push(['Esgoto', `${bill.consumo_esgoto_m3} m³`, bill.faixa_esgoto, bill.tarifa_esgoto, bill.deduzir_esgoto, bill.total_esgoto_rs]);
+      dataForSheet.push(['Água Produzida', `${bill.consumo_produzido_m3} m³`, bill.faixa_agua, bill.tarifa_agua, bill.deduzir_agua, bill.cobrado_agua_prod_rs]);
+      dataForSheet.push(['Água Comprada', `${bill.consumo_comprado_m3} m³`, '', bill.preco_m3_comprado_rs, '', bill.cobrado_agua_comp_rs]);
+      dataForSheet.push(['Area Comum', '', '', '', '', bill.cobrado_area_comum_rs]);
+      dataForSheet.push(['Outros Gastos', '', '', '', '', bill.cobrado_outros_gastos_rs]);
+      dataForSheet.push(['Total Geral', '', '', '', '', bill.total_conta_rs]);
+      dataForSheet.push([]);
+      dataForSheet.push([]);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(dataForSheet);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Histórico de Contas');
+
+    worksheet['!cols'] = [ { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 10 }, { wch: 12 }];
+    const fileName = `historico-unidade-${bills[0].codigo_lote}.xlsx`;
+    XLSX.writeFile(workbook, fileName);    // ... (lógica de exportação sem alterações)
   };
 
   return (
