@@ -27,6 +27,14 @@ def get_bills_for_unit(unit_id):
     response, status_code = unit_service.get_bills_for_unit_service(db, user_id, unit_id)
     return jsonify(response), status_code
 
+@api_bp.route('/units/<int:unit_id>/moradores', methods=['GET'])
+@jwt_required
+def get_moradores_for_unit(unit_id):
+    db = get_db()
+    user_id = request.user_id
+    response, status_code = unit_service.get_moradores_for_unit_service(db, user_id, unit_id)
+    return jsonify(response), status_code
+
 @api_bp.route('/monthly-summary/<string:year_month>', defaults={'sort_by_param': None}, methods=['GET'])
 @api_bp.route('/monthly-summary/<string:year_month>/<string:sort_by_param>', methods=['GET'])
 @jwt_required

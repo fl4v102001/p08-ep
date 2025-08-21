@@ -149,7 +149,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
 
           {/* Painel 4: FutureUsePanel (Sempre visível) */}
           <div className="lg:col-span-3 h-full overflow-hidden">
-             <FutureUsePanel />
+             <FutureUsePanel selectedUnit={selectedUnit} />
           </div>
         </>
       )}

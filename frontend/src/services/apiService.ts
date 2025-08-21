@@ -1,4 +1,4 @@
-import { Unit, WaterBill, MonthlySummary } from '../../types';
+import { Unit, WaterBill, MonthlySummary, Morador } from '../../types';
 
 // URL base do seu backend Python
 const API_BASE_URL = 'http://127.0.0.1:5000';
@@ -63,6 +63,11 @@ export async function fetchUnits(): Promise<Unit[]> {
 
 export async function fetchBillsForUnit(unitId: number): Promise<WaterBill[]> {
   const response = await authenticatedFetch(`${API_BASE_URL}/api/units/${unitId}/bills`);
+  return response.json();
+}
+
+export async function fetchMoradoresForUnit(unitId: number): Promise<Morador[]> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/units/${unitId}/moradores`);
   return response.json();
 }
 

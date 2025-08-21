@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, TIMESTAMP, Numeric, Boolean, BigInteger, Double
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, TIMESTAMP, Numeric, Boolean, BigInteger, Double, func
 from sqlalchemy.orm import relationship
 from .database import Base
 
@@ -230,3 +230,36 @@ class UserLote(Base):
     codigo_lote = Column(Integer, ForeignKey("newtab_lotes.codigo_lote"), primary_key=True)
     user = relationship("User", back_populates="lotes")
     unit = relationship("Unit", back_populates="users_lotes")
+
+
+class Morador(Base):
+    __tablename__ = "newtab_moradores"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    codigo_lote = Column(BigInteger, ForeignKey("newtab_lotes.codigo_lote"))
+    nome = Column(String)
+    cpf = Column(String)
+    data_nascimento = Column(Date)
+    fone1 = Column(String)
+    fone2 = Column(String)
+    contato_principal = Column(Boolean)
+    email = Column(String)
+    nome_lote = Column(String)
+    fone3 = Column(String)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "codigo_lote": self.codigo_lote,
+            "nome": self.nome,
+            "cpf": self.cpf,
+            "data_nascimento": self.data_nascimento.isoformat() if self.data_nascimento else None,
+            "fone1": self.fone1,
+            "fone2": self.fone2,
+            "contato_principal": self.contato_principal,
+            "email": self.email,
+            "nome_lote": self.nome_lote,
+            "fone3": self.fone3
+        }

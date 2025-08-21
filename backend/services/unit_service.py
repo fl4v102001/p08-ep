@@ -3,7 +3,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 
-from ..models import Unit, WaterBill, UserLote
+from ..models import Unit, WaterBill, UserLote, Morador
 
 def get_units_for_user_service(db: Session, user_id: int):
     """
@@ -39,6 +39,26 @@ def get_bills_for_unit_service(db: Session, user_id: int, unit_id: int):
     
     return [b.to_dict() for b in bills], 200
 
+def get_moradores_for_unit_service(db: Session, user_id: int, unit_id: int):
+    """
+    Busca os moradores de uma unidade, verificando se o usuário tem permissão.
+    """
+    user_has_access = db.query(UserLote).filter(
+        UserLote.user_id == user_id,
+        UserLote.codigo_lote == unit_id
+    ).first()
+
+    if not user_has_access:
+        return {'error': 'Acesso negado a esta unidade.'}, 403
+
+    moradores = (
+        db.query(Morador)
+        .filter(Morador.codigo_lote == unit_id)
+        .order_by(Morador.nome)
+        .all()
+    )
+    
+    return [m.to_dict() for m in moradores], 200
 
 def get_latest_readings_service(db: Session):
     """
