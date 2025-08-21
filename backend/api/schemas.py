@@ -26,3 +26,29 @@ class ProcessReadingsPayload(BaseModel):
     class Config:
         # Permite o uso de 'alias' para mapear nomes de campos do JSON
         allow_population_by_field_name = True
+
+# --- Schemas para Veiculo ---
+
+class VeiculoBase(BaseModel):
+    codigo_lote: Optional[int] = None
+    placa: Optional[str] = None
+    marca: Optional[str] = None
+    modelo: Optional[str] = None
+    cor: Optional[str] = None
+    tipo: Optional[str] = None
+
+class VeiculoCreate(VeiculoBase):
+    pass
+
+class VeiculoUpdate(VeiculoBase):
+    pass
+
+class VeiculoInDBBase(VeiculoBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class Veiculo(VeiculoInDBBase):
+    pass

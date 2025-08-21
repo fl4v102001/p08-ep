@@ -4,8 +4,8 @@ from flask import Blueprint, request, jsonify
 from pydantic import ValidationError
 from ..database import get_db
 from ..auth.decorators import jwt_required
-from ..services import unit_service, summary_service, reading_service
-from .schemas import ProcessReadingsPayload
+from ..services import unit_service, summary_service, reading_service, veiculo_service
+from .schemas import ProcessReadingsPayload, VeiculoCreate, VeiculoUpdate
 
 api_bp = Blueprint('api_bp', __name__)
 
@@ -34,6 +34,13 @@ def get_moradores_for_unit(unit_id):
     user_id = request.user_id
     response, status_code = unit_service.get_moradores_for_unit_service(db, user_id, unit_id)
     return jsonify(response), status_code
+
+@api_bp.route('/units/<int:unit_id>/veiculos', methods=['GET'])
+@jwt_required
+def get_veiculos_for_unit(unit_id):
+    db = get_db()
+    veiculos = veiculo_service.get_veiculos_by_lote(db, unit_id)
+    return jsonify([v.to_dict() for v in veiculos])
 
 @api_bp.route('/monthly-summary/<string:year_month>', defaults={'sort_by_param': None}, methods=['GET'])
 @api_bp.route('/monthly-summary/<string:year_month>/<string:sort_by_param>', methods=['GET'])
@@ -90,3 +97,50 @@ def process_readings():
     except Exception as e:
         print(f"Erro inesperado em process_readings: {e}")
         return jsonify({'error': 'Ocorreu um erro interno no servidor ao processar as leituras.'}), 500
+
+# --- Rotas para Veiculos ---
+
+@api_bp.route('/veiculos', methods=['POST'])
+@jwt_required
+def create_veiculo():
+    data = request.get_json()
+    schema = VeiculoCreate(**data)
+    db = get_db()
+    veiculo = veiculo_service.create_veiculo(db, schema)
+    return jsonify(veiculo.to_dict()), 201
+
+@api_bp.route('/veiculos', methods=['GET'])
+@jwt_required
+def get_veiculos():
+    db = get_db()
+    veiculos = veiculo_service.get_veiculos(db)
+    return jsonify([v.to_dict() for v in veiculos])
+
+@api_bp.route('/veiculos/<int:veiculo_id>', methods=['GET'])
+@jwt_required
+def get_veiculo(veiculo_id):
+    db = get_db()
+    veiculo = veiculo_service.get_veiculo(db, veiculo_id)
+    if not veiculo:
+        return jsonify({'error': 'Veiculo not found'}), 404
+    return jsonify(veiculo.to_dict())
+
+@api_bp.route('/veiculos/<int:veiculo_id>', methods=['PUT'])
+@jwt_required
+def update_veiculo(veiculo_id):
+    data = request.get_json()
+    schema = VeiculoUpdate(**data)
+    db = get_db()
+    veiculo = veiculo_service.update_veiculo(db, veiculo_id, schema)
+    if not veiculo:
+        return jsonify({'error': 'Veiculo not found'}), 404
+    return jsonify(veiculo.to_dict())
+
+@api_bp.route('/veiculos/<int:veiculo_id>', methods=['DELETE'])
+@jwt_required
+def delete_veiculo(veiculo_id):
+    db = get_db()
+    veiculo = veiculo_service.delete_veiculo(db, veiculo_id)
+    if not veiculo:
+        return jsonify({'error': 'Veiculo not found'}), 404
+    return jsonify(veiculo.to_dict())

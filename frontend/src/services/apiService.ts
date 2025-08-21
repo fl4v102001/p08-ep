@@ -1,4 +1,6 @@
-import { Unit, WaterBill, MonthlySummary, Morador } from '../../types';
+
+import axios from 'axios';
+import { Unit, WaterBill, MonthlySummary, Morador, Veiculo } from '../../types';
 
 // URL base do seu backend Python
 const API_BASE_URL = 'http://127.0.0.1:5000';
@@ -66,10 +68,15 @@ export async function fetchBillsForUnit(unitId: number): Promise<WaterBill[]> {
   return response.json();
 }
 
-export async function fetchMoradoresForUnit(unitId: number): Promise<Morador[]> {
-  const response = await authenticatedFetch(`${API_BASE_URL}/api/units/${unitId}/moradores`);
-  return response.json();
-}
+export const fetchMoradoresForUnit = async (unitId: number): Promise<Morador[]> => {
+    const response = await authenticatedFetch(`${API_BASE_URL}/api/units/${unitId}/moradores`);
+    return response.json();
+};
+
+export const fetchVeiculosForUnit = async (unitId: number): Promise<Veiculo[]> => {
+    const response = await authenticatedFetch(`${API_BASE_URL}/api/units/${unitId}/veiculos`);
+    return response.json();
+};
 
 export async function getMonthlySummary(yearMonth: string, sortBy?: string, sortOrder?: 'asc' | 'desc'): Promise<MonthlySummary> {
   let url = `${API_BASE_URL}/api/monthly-summary/${yearMonth}`;

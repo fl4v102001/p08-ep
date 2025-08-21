@@ -263,3 +263,49 @@ class Morador(Base):
             "nome_lote": self.nome_lote,
             "fone3": self.fone3
         }
+
+class Reading(Base):
+    __tablename__ = "newtab_leituras"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    codigo_lote = Column(BigInteger)
+    data_leitura = Column(TIMESTAMP(timezone=True))
+    leitura = Column(BigInteger)
+    consumo = Column(BigInteger)
+    faturado = Column(Boolean, default=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "codigo_lote": self.codigo_lote,
+            "data_leitura": self.data_leitura.isoformat() if self.data_leitura else None,
+            "leitura": self.leitura,
+            "consumo": self.consumo,
+            "faturado": self.faturado
+        }
+
+class Veiculo(Base):
+    __tablename__ = "newtab_veiculos"
+
+    id = Column(BigInteger, primary_key=True, index=True)
+    created_at = Column(TIMESTAMP(timezone=True), server_default=func.now())
+    codigo_lote = Column(BigInteger, nullable=True)
+    placa = Column(String, nullable=True)
+    marca = Column(String, nullable=True)
+    modelo = Column(String, nullable=True)
+    cor = Column(String, nullable=True)
+    tipo = Column(String, nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "codigo_lote": self.codigo_lote,
+            "placa": self.placa,
+            "marca": self.marca,
+            "modelo": self.modelo,
+            "cor": self.cor,
+            "tipo": self.tipo,
+        }
