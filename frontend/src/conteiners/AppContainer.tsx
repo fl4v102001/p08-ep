@@ -19,6 +19,7 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
 
   const [isDataLoading, setIsDataLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleSelectUnit = useCallback(async (unit: Unit) => {
     setSelectedUnit(unit);
@@ -108,6 +109,16 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
     return allBills.get(selectedUnit.codigo_lote) || [];
   }, [selectedUnit, allBills]);
 
+  const filteredUnits = useMemo(() => {
+    if (!searchTerm) {
+      return units;
+    }
+    return units.filter(unit =>
+      unit.nome_lote.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      unit.codigo_lote.toString().includes(searchTerm)
+    );
+  }, [units, searchTerm]);
+
   return (
     // ETAPA 1: A grade principal agora tem 12 colunas
     <main className="flex-grow p-2 lg:p-3 grid grid-cols-1 lg:grid-cols-12 gap-2 overflow-hidden">
@@ -128,7 +139,14 @@ const AppContainer: React.FC<AppContainerProps> = ({ onLogout }) => {
 
           {/* Painel 1: UnitList (O mais estreito) */}
           <div className="lg:col-span-2 h-full overflow-hidden">
-            <UnitList units={units} selectedUnit={selectedUnit} onSelectUnit={handleSelectUnit} onGenerateReport={handleGenerateReport} />
+            <UnitList 
+              units={filteredUnits} 
+              selectedUnit={selectedUnit} 
+              onSelectUnit={handleSelectUnit} 
+              onGenerateReport={handleGenerateReport}
+              searchTerm={searchTerm}
+              onSearchTermChange={setSearchTerm}
+            />
           </div>
 
           {/* Painel 2: BillDetails (O segundo mais estreito) */}

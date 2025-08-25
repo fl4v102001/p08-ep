@@ -60,6 +60,7 @@ const VeiculosContainer: React.FC = () => {
                 veiculos={veiculos} 
                 onEdit={handleEdit} 
                 onDelete={handleDelete} 
+                onAdd={() => setIsFormVisible(true)}
             />
         </div>
     );
