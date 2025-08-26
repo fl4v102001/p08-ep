@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import { Unit, WaterBill, MonthlySummary, Morador, Veiculo } from '../../types';
+import { Unit, WaterBill, MonthlySummary, Morador, Veiculo, Relatorio24mModel } from '../models';
 
 // URL base do seu backend Python
 const API_BASE_URL = 'http://127.0.0.1:5000';
@@ -162,5 +162,10 @@ export async function submitProcessedReadings(payload: ProcessReadingsPayload): 
     method: 'POST',
     body: JSON.stringify(payload),
   });
+  return response.json();
+}
+
+export async function getRelatorio24m(): Promise<Relatorio24mModel[]> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/api/reports/24m`);
   return response.json();
 }

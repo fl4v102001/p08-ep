@@ -7,6 +7,17 @@ from ..services import report_service # Importa o serviço de relatório
 
 reports_bp = Blueprint('reports_bp', __name__)
 
+@reports_bp.route('/reports/24m', methods=['GET'])
+@jwt_required
+def get_24m_report():
+    db = get_db()
+    try:
+        data, status_code = report_service.get_24m_report_data(db)
+        return jsonify(data), status_code
+    except Exception as e:
+        print(f"Erro inesperado em get_24m_report: {e}")
+        return jsonify({'error': 'Ocorreu um erro interno ao buscar o relatório.'}), 500
+
 # ROTA REFATORADA
 @reports_bp.route('/report/unit/<int:codigo_lote>/<string:data_ref_mes>', methods=['GET'])
 @jwt_required

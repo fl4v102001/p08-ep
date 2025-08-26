@@ -4,3 +4,4 @@ export * from './WaterBillModel';
 export * from './MonthlySummaryModel';
 export * from './MoradorModel';
 export * from './VeiculoModel';
+export * from './Relatorio24mModel';

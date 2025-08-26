@@ -8,3 +8,4 @@ export { default as RegisterScreen } from './RegisterScreen'; // NOVO: Exporta R
 export { default as FutureUsePanel } from './FutureUsePanel';
 export { default as Header } from './Header';
 export { default as ProcessReadingModal } from './ProcessReadingModal'; // NOVO: Exporta o modal de leitura
+export * from './Relatorio24m';

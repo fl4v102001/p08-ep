@@ -1,17 +1,20 @@
 // frontend/App.tsx
 import React, { useState } from 'react';
-// Certifique-se de que ProcessReadingModal está sendo exportado de 'src/components/index.ts'
-// e importado aqui.
 import { LoginScreen, Header, RegisterScreen, ProcessReadingModal } from './src/components';
 import AppContainer from './src/conteiners/AppContainer';
+import PainelContainer from './src/conteiners/PainelContainer'; // Importa o novo container
 import { useAuth } from './src/hooks/useAuth';
+
+// Define os tipos para as visões possíveis
+type ActiveView = 'home' | 'painel';
 
 function App() {
   const { isLoggedIn, login, register, logout, isLoadingAuth, user } = useAuth();
   const [showRegister, setShowRegister] = useState(false);
-  
-  // 1. ADICIONADO: Estado para controlar a visibilidade do modal
   const [isReadingModalOpen, setReadingModalOpen] = useState(false);
+  
+  // Estado para controlar a visão ativa na navegação principal
+  const [activeView, setActiveView] = useState<ActiveView>('home');
 
   if (isLoadingAuth) {
     return (
@@ -31,16 +34,19 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen font-sans">
-      {/* 2. ALTERADO: O componente Header agora recebe a prop 'onOpenReadings' */}
       <Header
         onLogout={logout}
         userName={user?.nome_usuario || 'Utilizador'}
         userProfile={user?.perfil_usuario || 'Padrão'}
         onOpenReadings={() => setReadingModalOpen(true)}
+        activeView={activeView} // Passa a visão ativa
+        onNavigate={setActiveView} // Passa a função para mudar a visão
       />
-      <AppContainer onLogout={logout} />
+      
+      {/* Renderização condicional baseada na visão ativa */}
+      {activeView === 'home' && <AppContainer onLogout={logout} />}
+      {activeView === 'painel' && <PainelContainer />}
 
-      {/* 3. ADICIONADO: O modal é renderizado aqui, controlado pelo estado */}
       <ProcessReadingModal 
         isOpen={isReadingModalOpen}
         onClose={() => setReadingModalOpen(false)}

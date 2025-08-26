@@ -51,3 +51,22 @@ def generate_report_for_unit_service(db: Session, user_id: int, codigo_lote: int
     pdf_buffer = create_unit_report_pdf(unit_report_data, chart_buffer)
 
     return pdf_buffer, 200 # Retorna o buffer do PDF em caso de sucesso
+
+def get_24m_report_data(db: Session):
+    """
+    Busca todos os dados da tabela report_24m.
+    """
+    try:
+        query_result = db.execute(text("SELECT * FROM public.report_24m")).fetchall()
+        
+        if not query_result:
+            return [], 200
+
+        # Converte o resultado para uma lista de dicionários
+        report_data = [dict(row._mapping) for row in query_result]
+        
+        return report_data, 200
+
+    except Exception as e:
+        print(f"Erro ao buscar dados do relatório 24m: {e}")
+        return {'error': 'Ocorreu um erro interno ao buscar os dados do relatório.'}, 500
