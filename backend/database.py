@@ -2,7 +2,7 @@
 
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from flask import g # Importar o 'g' do Flask
 
@@ -29,4 +29,19 @@ def get_db() -> Session:
     """
     if 'db' not in g:
         g.db = SessionLocal()
+        print("--- Nova conexão com o banco de dados estabelecida ---")
     return g.db
+
+def test_db_connection():
+    """Tenta conectar ao banco de dados e executar uma query simples."""
+    print("--- Testando conexão com o banco de dados... ---")
+    try:
+        db = SessionLocal()
+        db.execute(text('SELECT 1'))
+        db.close()
+        print("--- Conexão com o banco de dados bem-sucedida! ---")
+        return True
+    except Exception as e:
+        print("--- FALHA na conexão com o banco de dados. ---")
+        print(f"Erro: {e}")
+        return False

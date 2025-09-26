@@ -19,17 +19,17 @@ export const useAuth = () => {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(true);
 
-  // Efeito para carregar token e usuário do localStorage na inicialização
+  // Efeito para carregar token e usuário do sessionStorage na inicialização
   useEffect(() => {
-    const storedToken = localStorage.getItem('authToken');
-    const storedUser = localStorage.getItem('user');
+    const storedToken = sessionStorage.getItem('authToken');
+    const storedUser = sessionStorage.getItem('user');
     if (storedToken && storedUser) {
       try {
         setAuthToken(storedToken);
         setUser(JSON.parse(storedUser));
         setIsLoggedIn(true);
       } catch (e) {
-        console.error("Erro ao parsear dados do usuário do localStorage:", e);
+        console.error("Erro ao parsear dados do usuário do sessionStorage:", e);
         logout(); // Limpa dados inválidos
       }
     }
@@ -41,8 +41,8 @@ export const useAuth = () => {
     setAuthError(null);
     try {
       const response = await loginUser(email, password);
-      localStorage.setItem('authToken', response.token);
-      localStorage.setItem('user', JSON.stringify(response.user));
+      sessionStorage.setItem('authToken', response.token);
+      sessionStorage.setItem('user', JSON.stringify(response.user));
       setAuthToken(response.token);
       setUser(response.user);
       setIsLoggedIn(true);
@@ -76,8 +76,8 @@ export const useAuth = () => {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('user');
     setAuthToken(null);
     setUser(null);
     setIsLoggedIn(false);

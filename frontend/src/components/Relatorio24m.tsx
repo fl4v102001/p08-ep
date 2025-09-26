@@ -52,8 +52,19 @@ export const Relatorio24m: React.FC = () => {
               <tr key={relatorio.codigo_lote} className="hover:bg-gray-50">
                 <td className="py-2 px-1 border-b text-center">{relatorio.codigo_lote}</td>
                 {months.map(monthKey => (
-                  <td key={`${relatorio.codigo_lote}-${monthKey}`} className="py-2 px-1 border-b text-center">
-                    {relatorio[`${monthKey}_consumo` as keyof Relatorio24mModel]}
+                  <td key={`${relatorio.codigo_lote}-${monthKey}`} className="py-2 px-1 border-b align-top">
+                    <div className="text-center">
+                      {relatorio[`${monthKey}_consumo` as keyof Relatorio24mModel]}
+                    </div>
+                    <div className="text-center text-gray-600">
+                      {(() => {
+                        const cost = relatorio[`${monthKey}_total_conta` as keyof Relatorio24mModel];
+                        if (cost === null || typeof cost === 'undefined') {
+                          return '';
+                        }
+                        return `R$ ${Math.round(Number(cost))}`;
+                      })()}
+                    </div>
                   </td>
                 ))}
               </tr>

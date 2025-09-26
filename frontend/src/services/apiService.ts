@@ -6,24 +6,15 @@ import { Unit, WaterBill, MonthlySummary, Morador, Veiculo, Relatorio24mModel } 
 const API_BASE_URL = 'http://127.0.0.1:5000';
 
 // --- Funções de Autenticação e Fetch Auxiliar (sem alterações) ---
-let currentAuthToken: string | null = localStorage.getItem('authToken');
-
-export const setAuthToken = (token: string | null) => {
-  currentAuthToken = token;
-  if (token) {
-    localStorage.setItem('authToken', token);
-  } else {
-    localStorage.removeItem('authToken');
-  }
-};
 
 async function authenticatedFetch(url: string, options?: RequestInit): Promise<Response> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options?.headers as Record<string, string> || {}),
   };
-  if (currentAuthToken) {
-    headers['Authorization'] = `Bearer ${currentAuthToken}`;
+  const token = sessionStorage.getItem('authToken');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
   const response = await fetch(url, { ...options, headers });
   if (!response.ok) {
@@ -53,7 +44,6 @@ export async function loginUser(email_usuario: string, senha_usuario: string): P
     body: JSON.stringify({ email_usuario, senha_usuario }),
   });
   const data = await response.json();
-  setAuthToken(data.token);
   return data;
 }
 
